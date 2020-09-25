@@ -27,24 +27,6 @@ int main() {
     exit(EXIT_ERROR);
   }
 
-  // Initialize buttons
-  err = buttons_init(SYSTEM_BUTTONS_UIO_FILE);
-  if (err) {
-    printf("buttons_init failed\n");
-    exit(EXIT_ERROR);
-  }
-
-  // Initialize switches
-  err = switches_init(SYSTEM_SWITCHES_UIO_FILE);
-  if (err) {
-    printf("switches_init failed\n");
-    exit(EXIT_ERROR);
-  }
-
-  // Enable the GPIO interrupt outputs
-  buttons_enable_interrupts();
-  switches_enable_interrupts();
-
   // Enable the buttons and switches interrupt lines to the interrupt controller
   intc_irq_enable(SYSTEM_INTC_IRQ_BUTTONS_IRQ);
   intc_irq_enable(SYSTEM_INTC_IRQ_SWITCHES_IRQ);
@@ -55,19 +37,6 @@ int main() {
     uint32_t int_mask = intc_wait_for_interrupt();
     printf("interrupt ");
 
-    // Check if interrupt mask shows interrupt on buttons irq line,
-    // and then acknowledge the interrupt
-    if (int_mask & SYSTEM_INTC_IRQ_BUTTONS_MASK) {
-      printf("button ");
-      buttons_ack_interrupt();
-    }
-
-    // Check if interrupt mask shows interrupt on switches irq line,
-    // and then acknowledge the interrupt
-    if (int_mask & SYSTEM_INTC_IRQ_SWITCHES_MASK) {
-      printf("switch ");
-      switches_ack_interrupt();
-    }
     printf("\n");
 
     // Acknowledge the interrupt with the intc
@@ -78,8 +47,6 @@ int main() {
   }
 
   intc_exit();
-  buttons_exit();
-  switches_exit();
 
   return 0;
 }
